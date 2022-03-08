@@ -2,7 +2,7 @@ from random import randint, choice
 from pygame.draw import rect
 from pygame.mouse import get_pos
 from pygame.key import get_pressed
-from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT
+from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_a, K_s, K_w, K_d
 from pygame.image import load
 
 
@@ -51,8 +51,8 @@ class PlayerKeyboard(Ship):
 
     def update(self, window_w, window_h):
         keys = get_pressed()
-        x = self.ms_h * (-keys[K_LEFT] + keys[K_RIGHT])
-        y = self.ms_h * (-keys[K_DOWN] + keys[K_UP])
+        x = self.ms_h * (-keys[K_a] + keys[K_d])
+        y = self.ms_h * (-keys[K_s] + keys[K_w])
         # if x and y:
         #     scale = sqrt(x * x + y * y) / abs(x)
         #     x = int(x / scale)

@@ -1,5 +1,5 @@
 from pygame.mouse import set_visible
-from pygame import display
+from pygame.display import set_mode, quit as disp_quit
 from buttons import Button
 from ships import PlayerKeyboard, PlayerMouse
 
@@ -8,7 +8,8 @@ class Menu:
     def __init__(self):
         set_visible(True)
         self. window_w, self.window_h = 900, 600
-        self.screen = display.set_mode((self.window_w, self.window_h), 0, 32)
+        disp_quit()
+        self.screen = set_mode((self.window_w, self.window_h), 0, 32)
 
 
 class MainMenu(Menu):

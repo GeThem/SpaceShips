@@ -1,4 +1,4 @@
-from pygame.display import set_mode
+from pygame.display import set_mode, quit as disp_quit
 from pygame.transform import rotate
 from random import randint
 from bullet import Bullet
@@ -9,6 +9,7 @@ class Game:
     def __init__(self, player):
         self.window_w, self.window_h = 600, 900
 
+        disp_quit()
         self.screen = set_mode((self.window_w, self.window_h), 0, 32)
 
         self.player = player

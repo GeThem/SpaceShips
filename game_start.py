@@ -1,18 +1,16 @@
 from game import Game
+from menus import MainMenu
+from pygame import init as pg_init, quit, display, QUIT, KEYDOWN, K_ESCAPE
 from pygame.time import Clock
 from pygame.event import get
-from pygame import init, quit, display, QUIT, KEYDOWN, K_ESCAPE
-from menus import MainMenu
 from pygame.mouse import set_visible
 
-
-init()
+pg_init()
 
 clock = Clock()
 
 menu = MainMenu()
 game = 0
-
 
 start = 2
 flag = 1
@@ -42,7 +40,6 @@ while 1:
     else:
         if player := menu.run():
             game = Game(player)
-
 
     for event in get():
         if event.type == QUIT:
