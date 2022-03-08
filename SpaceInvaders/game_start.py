@@ -43,6 +43,7 @@ while 1:
         if player := menu.run():
             game = Game(player)
 
+
     for event in get():
         if event.type == QUIT:
             quit()

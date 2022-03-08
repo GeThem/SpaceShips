@@ -1,5 +1,4 @@
-from pygame import display
-from pygame.transform import rotate
+import pygame as pg
 from random import randint
 from bullet import Bullet
 from ships import Enemy
@@ -9,11 +8,11 @@ class Game:
     def __init__(self, player):
         self.window_w, self.window_h = 600, 900
 
-        self.screen = display.set_mode((self.window_w, self.window_h), 0, 32)
+        self.screen = pg.display.set_mode((self.window_w, self.window_h), 0, 32)
 
         self.player = player
 
-        self.enemy_ship = rotate(self.player.image, 180)
+        self.enemy_ship = pg.transform.rotate(self.player.image, 180)
 
         self.p_bullets = []
         self.fire_speed = 1
