@@ -22,9 +22,14 @@ while 1:
     if menu:
         if isinstance(menu, MainMenu):
             if (player := menu.run()) == 1:
-                with open('data/controlls.bin', 'rb') as file:
-                    controlls = bin_load(file)
-                    menu = SettingsMenu([font.render(key_name(text).upper(), 1, (100, 100, 100)) for text in controlls])
+                try:
+                    with open('data/controlls.bin', 'rb') as file:
+                        controlls = bin_load(file)
+                except FileNotFoundError:
+                    with open('data/controlls.bin', 'wb') as file:
+                        controlls = [97, 100, 119, 115]
+                        dump(controlls, file)
+                menu = SettingsMenu([font.render(key_name(text).upper(), 1, (100, 100, 100)) for text in controlls])
             elif player:
                 paused = 2
                 is_going = 1
