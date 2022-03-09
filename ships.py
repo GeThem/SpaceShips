@@ -2,18 +2,18 @@ from random import randint, choice
 from pygame.draw import rect
 from pygame.mouse import get_pos
 from pygame.key import get_pressed
-from pygame.locals import K_a, K_s, K_w, K_d
 from pygame.image import load
+from itertools import cycle
+from pickle import load as bin_load
 
 
 class Ship:
     def __init__(self, image, x, y, health, damage, movespeed):
         self.image = image
-        self.size = image.get_size()
         self.rect = image.get_rect(bottomleft=(x, y))
         self.hp = health
         self.hp_const = health
-        self.hp_coords = [x + (self.size[0] - health) // 2, y + 5]
+        self.hp_coords = [self.rect.centerx - health // 2, y + 5]
         self.damage = damage
         self.ms_h, self.ms_v = movespeed
 
@@ -26,29 +26,38 @@ class Ship:
 class PlayerMouse(Ship):
     def __init__(self, health, damage, movespeed):
         super().__init__(load("data/images/ship.png"), 265, 900, health, damage, movespeed)
+        self.firerate = cycle(range(40, -1, -1))
+
+    def change_firerate(self, firerate):
+        self.firerate = cycle(range(firerate, -1, -1))
+
+    def fire(self):
+        if not self.firerate.__next__():
+            return self.rect.midtop
 
     def update(self, window_w, window_h):
         mx, my = get_pos()
 
-        if mx != self.rect.center[0]:
-            direction = 1 if mx > self.rect.center[0] else -1
-            move = min(abs(mx - self.rect.center[0]), self.ms_h) * direction
+        if mx != self.rect.centerx:
+            direction = 1 if mx > self.rect.centerx else -1
+            move = min(abs(mx - self.rect.centerx), self.ms_h) * direction
             if self.rect.x + move > 0 and self.rect.right + move < window_w:
                 self.rect.x += move
                 self.hp_coords[0] += move
 
         if my != self.rect.center[1]:
-            direction = 1 if my > self.rect.center[1] else -1
-            move = min(abs(my - self.rect.center[1]), self.ms_v) * direction
+            direction = 1 if my > self.rect.centery else -1
+            move = min(abs(my - self.rect.centery), self.ms_v) * direction
             if self.rect.y + move > 0 and self.rect.bottom + move < window_h:
                 self.rect.y += move
                 self.hp_coords[1] += move
 
 
-class PlayerKeyboard(Ship):
-    def __init__(self, health, damage, movespeed, controlls=(K_a, K_d, K_w, K_s)):
-        super().__init__(load("data/images/ship.png"), 265, 900, health, damage, movespeed)
-        self.l, self.r, self.u, self.d = controlls
+class PlayerKeyboard(PlayerMouse):
+    def __init__(self, health, damage, movespeed):
+        super().__init__(health, damage, movespeed)
+        with open('data/controlls.bin', 'rb') as file:
+            self.l, self.r, self.u, self.d = bin_load(file)
 
     def update(self, window_w, window_h):
         keys = get_pressed()
@@ -70,7 +79,11 @@ class Enemy(Ship):
     def __init__(self, image, x, y, health=15, damage=5):
         super().__init__(image, x, y, health, damage, (randint(1, 4), 1))
         self.counter = 0
-        self.fire = 0
+
+    def fire(self):
+        if not randint(0, 120):
+            return self.rect.midbottom
+        return 0
 
     def update(self, window_w, window_h, moves=1):
         if not self.counter:
@@ -82,11 +95,9 @@ class Enemy(Ship):
             return -1
         self.hp_coords[1] += self.ms_v * moves
 
-        if self.rect.x + self.ms_h > 0 and self.rect.x + self.ms_h + self.size[0] < window_w:
+        if self.rect.x + self.ms_h > 0 and self.rect.right + self.ms_h < window_w:
             self.rect.x += self.ms_h
             self.hp_coords[0] += self.ms_h
             self.counter -= 1
         else:
             self.counter = 0
-
-        self.fire = randint(0, 120)

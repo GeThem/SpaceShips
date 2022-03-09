@@ -10,11 +10,10 @@ class Game:
         self.window_w, self.window_h = 600, 900
 
         self.player = player
+        self.p_bullets = []
 
         self.enemy_ship = rotate(self.player.image, 180)
 
-        self.p_bullets = []
-        self.fire_speed = 1
         self.bullet_speed = 8
         self.bullet_size = 2, 16
 
@@ -35,25 +34,13 @@ class Game:
 
         # player --------------------------------------------------------
         self.player.update(self.window_w, self.window_h)
-        if (index := self.player.rect.collidelist(self.enemies)) != -1:
-            self.player.hp -= self.enemies[index].hp
-            del self.enemies[index]
-            self.enemies.append(
-                Enemy(self.enemy_ship, randint(0 + 70, self.window_w - 70), 0, randint(1, 100), randint(1, 20)))
 
-        if self.fire_speed:
-            self.fire_speed -= 1
-        else:
-            self.fire_speed = 40
-            self.p_bullets.append(
-                Bullet(self.player.rect.x + self.player.size[0] // 2, self.player.rect.y, self.bullet_size,
-                       self.bullet_speed))
-            self.p_bullets.append(
-                Bullet(self.player.rect.x + self.player.size[0] // 2 - 6, self.player.rect.y, self.bullet_size,
-                       self.bullet_speed))
-            self.p_bullets.append(
-                Bullet(self.player.rect.x + self.player.size[0] // 2 + 6, self.player.rect.y, self.bullet_size,
-                       self.bullet_speed))
+        if fire := self.player.fire():
+            self.p_bullets.extend([
+                Bullet(*fire, self.bullet_size, self.bullet_speed),
+                Bullet(fire[0] - 6, fire[1], self.bullet_size,self.bullet_speed),
+                Bullet(fire[0] + 6, fire[1], self.bullet_size, self.bullet_speed)
+            ])
 
         for i, bullet in enumerate(self.p_bullets.copy(), -len(self.p_bullets)):
             bullet.update()
@@ -63,7 +50,7 @@ class Game:
                 if self.enemies[index].hp <= 0:
                     del self.enemies[index]
                     self.enemies.append(
-                        Enemy(self.enemy_ship, randint(0 + 70, self.window_w - 70), 0, randint(1, 100), randint(1, 20)))
+                        Enemy(self.enemy_ship, randint(0, self.window_w - 70), 0, randint(1, 100), randint(1, 20)))
             elif bullet.rect.colliderect((0, 0, self.window_w, self.window_h)):
                 bullet.draw(self.screen)
             else:
@@ -73,15 +60,19 @@ class Game:
         # enemy ---------------------------------------------------------
         for i, enemy in enumerate(self.enemies.copy(), -len(self.enemies)):
             if enemy.update(self.window_w, self.window_h) != -1:
+                # if collides with player ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                if enemy.rect.colliderect(self.player.rect):
+                    self.player.hp -= self.enemies[i].hp
+                    del self.enemies[i]
+                    self.enemies.append(
+                        Enemy(self.enemy_ship, randint(0, self.window_w - 70), 0, randint(1, 100), randint(1, 20)))
+                # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 enemy.draw(self.screen)
-                if enemy.fire == 1:
-                    self.enemy_bullets.append(
-                        Bullet(enemy.rect.center[0], enemy.rect.bottom, self.bullet_size, -self.bullet_speed,
-                               enemy.damage))
+                if fire := enemy.fire():
+                    self.enemy_bullets.append(Bullet(*fire, self.bullet_size, -self.bullet_speed, enemy.damage))
             else:
                 del self.enemies[i]
-                self.enemies.append(
-                    Enemy(self.enemy_ship, randint(0 + 70, self.window_w - 70), 0, damage=randint(1, 20)))
+                self.enemies.append(Enemy(self.enemy_ship, randint(0, self.window_w - 70), 0, damage=randint(1, 20)))
 
         for i, bullet in enumerate(self.enemy_bullets.copy(), -len(self.enemy_bullets)):
             bullet.update()
@@ -101,4 +92,4 @@ class Game:
             return 0
         self.player.draw(self.screen)
         return 1
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
