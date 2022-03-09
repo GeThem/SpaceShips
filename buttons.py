@@ -26,6 +26,7 @@ class Button:
                 rect(screen, (0, 250, 0), self.rect)
             elif self.was_pressed:
                 self.was_pressed = 0
+                rect(screen, (0, 250, 0), self.rect)
                 return 1
             elif self.obi:
                 rect(screen, (250, 0, 0), self.rect)

@@ -1,8 +1,7 @@
 from pickle import dump, load as bin_load
-from keyboard import read_key
 from pygame import init as pg_init, quit, display
 from pygame.event import get, set_grab
-from pygame.key import key_code, name as key_name
+from pygame.key import name as key_name
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE
 from pygame.mouse import set_visible
 from pygame.time import Clock
@@ -15,16 +14,56 @@ pg_init()
 clock = Clock()
 
 menu = MainMenu()
-game = 0
-game_flag = 0
 
 font = Font('data/fonts/JetBrainsMono-ExtraBold.ttf', 34)
 
-paused = 2
-is_going = 1
-start_timer = timer = 240
+contin = change = key = 0
 while 1:
-    if game_flag:
+    if menu:
+        if isinstance(menu, MainMenu):
+            if (player := menu.run()) == 1:
+                with open('data/controlls.bin', 'rb') as file:
+                    controlls = bin_load(file)
+                    menu = SettingsMenu([font.render(key_name(text).upper(), 1, (100, 100, 100)) for text in controlls])
+            elif player:
+                paused = 2
+                is_going = 1
+                start_timer = timer = 240
+                game = Game(player)
+                menu = 0
+
+        elif isinstance(menu, InGameMenu):
+            if contin == 0:
+                contin = menu.run()
+            if contin == 1:
+                contin = menu = 0
+                paused = 2
+                start_timer = 180
+                game.init_display()
+            elif contin:
+                contin = 0
+                menu = MainMenu()
+
+        else:
+            if change == 0:
+                change = menu.run()
+            if change:
+                if change == 1:
+                    change = 0
+                    menu = MainMenu()
+                elif change == 2:
+                    with open('data/controlls.bin', 'wb') as file:
+                        dump(controlls, file)
+                    change = 0
+                    menu = MainMenu()
+                elif key:
+                    for i in range(0, 4):
+                        if change == i + 3:
+                            controlls[i] = key
+                            menu.controlls[i] = font.render(key_name(controlls[i]).upper(), 1, (100, 100, 100))
+                            change = key = 0
+                            break
+    else:
         if paused == 2:
             game.run()
             paused = 1
@@ -42,58 +81,10 @@ while 1:
                 timer -= 1
             else:
                 menu = MainMenu()
-                game = game_flag = 0
+                game = 0
                 is_going = 1
                 paused = 2
                 start_timer = timer = 240
-    else:
-        if isinstance(menu, InGameMenu):
-            if (contin := menu.run()) == 1:
-                menu = 0
-                game_flag = 1
-                paused = 2
-                start_timer = 180
-                game.init_display()
-            elif contin:
-                game_flag = 1
-                paused = is_going = timer = menu = 0
-
-        elif isinstance(menu, SettingsMenu):
-            if (change := menu.run()) == 1:
-                menu = MainMenu()
-                controlls = 0
-            elif change == 2:
-                with open('data/controlls.bin', 'wb') as file:
-                    dump(controlls, file)
-                controlls = 0
-                menu = MainMenu()
-            else:
-                try:
-                    if change == 3:
-                        controlls[0] = key_code(read_key())
-                        menu.controlls[0] = font.render(key_name(controlls[0]).upper(), 1, (100, 100, 100))
-                    elif change == 4:
-                        controlls[1] = key_code(read_key())
-                        menu.controlls[1] = font.render(key_name(controlls[1]).upper(), 1, (100, 100, 100))
-                    elif change == 5:
-                        controlls[2] = key_code(read_key())
-                        menu.controlls[2] = font.render(key_name(controlls[2]).upper(), 1, (100, 100, 100))
-                    elif change == 6:
-                        controlls[3] = key_code(read_key())
-                        menu.controlls[3] = font.render(key_name(controlls[3]).upper(), 1, (100, 100, 100))
-                except ValueError:
-                    pass
-
-
-        elif (player := menu.run()) == 1:
-            with open('data/controlls.bin', 'rb') as file:
-                controlls = bin_load(file)
-                menu = SettingsMenu([font.render(key_name(text).upper(), 1, (100, 100, 100)) for text in controlls])
-
-        elif player:
-            game = Game(player)
-            game_flag = 1
-            menu = 0
 
     for event in get():
         if event.type == QUIT:
@@ -101,12 +92,14 @@ while 1:
             exit()
         elif event.type == KEYDOWN:
             if event.key == K_ESCAPE:
-                if isinstance(menu, SettingsMenu):
+                if isinstance(menu, SettingsMenu) and not change:
                     menu = MainMenu()
-                    controlls = 0
+                elif isinstance(menu, InGameMenu):
+                    contin = 1
                 elif menu == 0:
                     menu = InGameMenu()
-                    game_flag = 0
+            elif change:
+                key = event.key
 
     display.update()
     clock.tick(120)

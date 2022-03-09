@@ -25,9 +25,9 @@ class Game:
         self.init_display()
 
     def init_display(self):
-        disp_quit()
+        # disp_quit()
         set_caption("Space Ships")
-        self.screen = set_mode((self.window_w, self.window_h), 0, 32)
+        self.screen = set_mode((self.window_w, self.window_h))
 
     def run(self):
         self.screen.fill((60, 60, 60))
@@ -38,7 +38,7 @@ class Game:
         if fire := self.player.fire():
             self.p_bullets.extend([
                 Bullet(*fire, self.bullet_size, self.bullet_speed),
-                Bullet(fire[0] - 6, fire[1], self.bullet_size,self.bullet_speed),
+                Bullet(fire[0] - 6, fire[1], self.bullet_size, self.bullet_speed),
                 Bullet(fire[0] + 6, fire[1], self.bullet_size, self.bullet_speed)
             ])
 
