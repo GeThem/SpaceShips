@@ -1,7 +1,7 @@
 from pygame.display import set_mode, quit as disp_quit, set_caption
 from pygame.transform import rotate
 from random import randint
-from bullet import Bullet
+from bullets import Bullet
 from ships import Enemy
 
 
@@ -25,7 +25,7 @@ class Game:
         self.init_display()
 
     def init_display(self):
-        # disp_quit()
+        disp_quit()
         set_caption("Space Ships")
         self.screen = set_mode((self.window_w, self.window_h))
 

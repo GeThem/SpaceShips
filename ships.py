@@ -4,7 +4,6 @@ from pygame.mouse import get_pos
 from pygame.key import get_pressed
 from pygame.image import load
 from itertools import cycle
-from pickle import load as bin_load
 
 
 class Ship:
@@ -54,10 +53,9 @@ class PlayerMouse(Ship):
 
 
 class PlayerKeyboard(PlayerMouse):
-    def __init__(self, health, damage, movespeed):
+    def __init__(self, health, damage, movespeed, controls):
         super().__init__(health, damage, movespeed)
-        with open('data/controlls.bin', 'rb') as file:
-            self.l, self.r, self.u, self.d = bin_load(file)
+        self.l, self.r, self.u, self.d = controls
 
     def update(self, window_w, window_h):
         keys = get_pressed()
