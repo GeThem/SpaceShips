@@ -1,10 +1,9 @@
 from pickle import dump, load as bin_load
 from pygame import init as pg_init, quit
 from pygame.display import update, quit as disp_quit
-from pygame.event import get, set_grab
+from pygame.event import get
 from pygame.key import name as key_name
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONDOWN
-from pygame.mouse import set_visible
 from pygame.time import Clock
 from pygame.font import Font
 from game import Game
@@ -32,22 +31,26 @@ while 1:
                         dump(controls + [mode], file)
                 menu = SettingsMenu([font.render(key_name(text).upper(), 1, (100, 100, 100)) for text in controls] + [mode])
             elif player:
-                paused = 2
-                is_going = 1
+                paused = is_going = 1
                 start_timer = timer = 240
                 game = Game(player)
                 menu = 0
 
         elif isinstance(menu, InGameMenu):
             if contin == 0:
+                game.run(0)
                 contin = menu.run()
-            if contin == 1:
+            elif contin in (1, 3):
+                if contin == 3:
+                    player.restart()
+                    game = Game(player, 1)
+                game.set_caption()
                 contin = menu = 0
-                paused = 2
-                start_timer = 180
-                game.init_display()
-            elif contin:
+                paused = 1
+                start_timer = 60
+            elif contin == 2:
                 contin = 0
+                disp_quit()
                 menu = MainMenu()
 
         else:
@@ -70,20 +73,17 @@ while 1:
                             change = key = 0
                             break
     else:
-        if paused == 2:
-            game.run()
-            paused = 1
-        elif paused:
+        if paused:
+            game.run(0)
             if start_timer:
                 start_timer -= 1
             else:
                 paused = 0
-                set_visible(False)
-                set_grab(True)
         elif is_going:
-            is_going = game.run()
+            is_going = game.run(1)
         else:
             if timer:
+                game.run(0)
                 timer -= 1
             else:
                 disp_quit()
@@ -105,8 +105,7 @@ while 1:
                 elif isinstance(menu, InGameMenu):
                     contin = 1
                 elif menu == 0:
-                    disp_quit()
-                    menu = InGameMenu()
+                    menu = InGameMenu(game.screen)
             elif change:
                 key = event.key
         elif event.type == MOUSEBUTTONDOWN:

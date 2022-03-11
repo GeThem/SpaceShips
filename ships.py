@@ -1,17 +1,16 @@
 from random import randint, choice
+from itertools import cycle
 from pygame.draw import rect
 from pygame.mouse import get_pos
 from pygame.key import get_pressed
 from pygame.image import load
-from itertools import cycle
 
 
 class Ship:
     def __init__(self, image, x, y, health, damage, movespeed):
         self.image = image
         self.rect = image.get_rect(bottomleft=(x, y))
-        self.hp = health
-        self.hp_const = health
+        self.hp = self.hp_const = health
         self.hp_coords = [self.rect.centerx - health // 2, y + 5]
         self.damage = damage
         self.ms_h, self.ms_v = movespeed
@@ -24,8 +23,13 @@ class Ship:
 
 class PlayerMouse(Ship):
     def __init__(self, health, damage, movespeed):
-        super().__init__(load("data/images/ship.png"), 265, 900, health, damage, movespeed)
+        super().__init__(load("data/images/ship.png"), 265, 890, health, damage, movespeed)
         self.firerate = cycle(range(40, -1, -1))
+
+    def restart(self):
+        self.rect.bottomleft = 265, 890
+        self.hp = self.hp_const
+        self.hp_coords = [self.rect.centerx - self.hp // 2, self.rect.bottom + 5]
 
     def change_firerate(self, firerate):
         self.firerate = cycle(range(firerate, -1, -1))

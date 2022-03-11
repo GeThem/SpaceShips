@@ -1,28 +1,21 @@
-from pygame.mouse import set_visible
-from pygame.event import set_grab
-from pygame.display import set_mode, quit as disp_quit, set_caption
+from pickle import load as bin_load
+from pygame import quit, Rect, Surface
+from pygame.display import set_mode, set_caption
 from pygame.draw import rect
 from pygame.font import Font
-from pygame.locals import Rect
-from pygame import quit
 from buttons import TextButton, Switch
 from ships import PlayerKeyboard, PlayerMouse
-from pickle import load as bin_load
 
 
 class Menu:
-    def __init__(self):
-        self. window_w, self.window_h = 900, 600
-        # disp_quit()
+    def __init__(self, caption, window_w=900, window_h=600):
+        self.window_w, self.window_h = window_w, window_h
         self.screen = set_mode((self.window_w, self.window_h))
-        set_visible(True)
-        set_grab(False)
 
 
 class MainMenu(Menu):
     def __init__(self):
-        super().__init__()
-        set_caption("Main Menu")
+        super().__init__("Main Menu")
         self.b_start = TextButton(self.window_w // 2 - 350, self.window_h // 5 - 50, 700, 100, 1, "Start", 54)
         # self.b_2 = TextButton(self.window_w // 2 - 350, self.window_h // 5 * 2 - 50, 700, 100, 1, "Records", 54)
         self.b_setts = TextButton(self.window_w // 2 - 350, self.window_h // 5 * 3 - 50, 700, 100, 1, "Controls", 54)
@@ -35,7 +28,6 @@ class MainMenu(Menu):
                 *controls, mode = bin_load(file)
             if mode:
                 return PlayerMouse(100, 15, (5, 4))
-            print(controls)
             return PlayerKeyboard(100, 15, (5, 4), controls)
 
         # if self.b_2.draw(self.screen):
@@ -48,26 +40,33 @@ class MainMenu(Menu):
         return 0
 
 
-class InGameMenu(Menu):
-    def __init__(self):
-        super().__init__()
+class InGameMenu():
+    def __init__(self, screen):
+        self.screen = screen
+        self.window_w, self.window_h = screen.get_size()
         set_caption("Menu")
-        self.b_continue = TextButton(self.window_w // 2 - 350, self.window_h // 3 - 50, 700, 100, 1, "Continue", 54)
-        self.b_back = TextButton(self.window_w // 2 - 350, self.window_h // 3 * 2 - 50, 700, 100, 1, "Back to Menu", 54)
+        self.surf = Surface((self.window_w, self.window_h))  # the size of your rect
+        self.surf.set_alpha(150)  # alpha level
+        self.surf.fill((60, 60, 60))  # this fills the entire surface
+
+        self.b_continue = TextButton(self.window_w // 2 - 225, self.window_h * 2 // 6 - 40, 450, 80, 1, "Continue", 44, 200)
+        self.b_restart = TextButton(self.window_w // 2 - 225, self.window_h * 3 // 6 - 40, 450, 80, 1, "Restart", 44, 200)
+        self.b_back = TextButton(self.window_w // 2 - 225, self.window_h * 4 // 6 - 40, 450, 80, 1, "Go to Menu", 44, 200)
 
     def run(self):
-        self.screen.fill((60, 60, 60))
+        self.screen.blit(self.surf, (0, 0))
         if self.b_continue.draw(self.screen):
             return 1
         if self.b_back.draw(self.screen):
             return 2
+        if self.b_restart.draw(self.screen):
+            return 3
         return 0
 
 
 class SettingsMenu(Menu):
     def __init__(self, controls):
-        super().__init__()
-        set_caption("Controls")
+        super().__init__("Controls")
         self.mouse_controls = Switch(self.window_w // 4 - 85, self.window_h // 7 - 15, 30, 30, 1)
         self.keyboard_controls = Switch(self.window_w // 4 - 85, self.window_h * 2 // 7 - 37, 30, 30, 1)
 
