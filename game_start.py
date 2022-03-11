@@ -7,7 +7,7 @@ from pygame.locals import QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONDOWN
 from pygame.time import Clock
 from pygame.font import Font
 from game import Game
-from menus import MainMenu, InGameMenu, SettingsMenu
+from menus import MainMenu, Pause, DeathScreen, SettingsMenu, InGameMenu
 
 pg_init()
 
@@ -44,6 +44,7 @@ while 1:
                 if contin == 3:
                     player.restart()
                     game = Game(player, 1)
+                    is_going = 1
                 game.set_caption()
                 contin = menu = 0
                 paused = 1
@@ -82,16 +83,7 @@ while 1:
         elif is_going:
             is_going = game.run(1)
         else:
-            if timer:
-                game.run(0)
-                timer -= 1
-            else:
-                disp_quit()
-                menu = MainMenu()
-                game = 0
-                is_going = 1
-                paused = 2
-                start_timer = timer = 240
+            menu = DeathScreen(game.screen)
 
     click = 0
     for event in get():
@@ -102,10 +94,14 @@ while 1:
             if event.key == K_ESCAPE:
                 if isinstance(menu, SettingsMenu) and not change:
                     menu = MainMenu()
-                elif isinstance(menu, InGameMenu):
+                elif isinstance(menu, Pause):
                     contin = 1
+                elif isinstance(menu, DeathScreen):
+                    contin = 0
+                    disp_quit()
+                    menu = MainMenu()
                 elif menu == 0:
-                    menu = InGameMenu(game.screen)
+                    menu = Pause(game.screen)
             elif change:
                 key = event.key
         elif event.type == MOUSEBUTTONDOWN:

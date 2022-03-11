@@ -4,12 +4,13 @@ from pygame.draw import rect
 from pygame.mouse import get_pos
 from pygame.key import get_pressed
 from pygame.image import load
+from settings import window_w, window_h
 
 
 class Ship:
     def __init__(self, image, x, y, health, damage, movespeed):
         self.image = image
-        self.rect = image.get_rect(bottomleft=(x, y))
+        self.rect = image.get_rect(midbottom=(x, y))
         self.hp = self.hp_const = health
         self.hp_coords = [self.rect.centerx - health // 2, y + 5]
         self.damage = damage
@@ -23,11 +24,11 @@ class Ship:
 
 class PlayerMouse(Ship):
     def __init__(self, health, damage, movespeed):
-        super().__init__(load("data/images/ship.png"), 265, 890, health, damage, movespeed)
+        super().__init__(load("data/images/ship.png"), window_w // 2, window_h - 15, health, damage, movespeed)
         self.firerate = cycle(range(40, -1, -1))
 
     def restart(self):
-        self.rect.bottomleft = 265, 890
+        self.rect.midbottom = window_w // 2, window_h - 15
         self.hp = self.hp_const
         self.hp_coords = [self.rect.centerx - self.hp // 2, self.rect.bottom + 5]
 
@@ -78,28 +79,57 @@ class PlayerKeyboard(PlayerMouse):
 
 
 class Enemy(Ship):
-    def __init__(self, image, x, y, health=15, damage=5):
-        super().__init__(image, x, y, health, damage, (randint(1, 4), 1))
-        self.counter = 0
+    def __init__(self, image, x, y, health=15, damage=5, proximity=150):
+        super().__init__(image, x, y, health, damage, (randint(1, 4), randint(1, 2)))
+        self.counterx = self.countery = 0
+        self.proximity = proximity
 
     def fire(self):
         if not randint(0, 120):
             return self.rect.midbottom
         return 0
 
-    def update(self, window_w, window_h, moves=1):
-        if not self.counter:
-            self.counter = randint(0, window_w)
-            self.ms_h *= choice((-1, 1))
+    def update(self, window_w, window_h, playery, moves=1):
+        if not self.counterx:
+            self.counterx = randint(10, window_w)
+            self.ms_h *= -1
+
+        if not self.countery:
+            self.countery = randint(10, window_h)
+            self.ms_v *= -1
+
+        if self.rect.bottom >= playery - self.proximity and self.ms_v > 0 or self.rect.y < 0 and self.ms_v < 0:
+            self.ms_v *= -1
 
         self.rect.y += self.ms_v * moves
-        if self.rect.y > window_h:
-            return -1
         self.hp_coords[1] += self.ms_v * moves
+        self.countery -= 1
+
+        # self.rect.y += self.ms_v * moves
+        # if self.rect.y > window_h:
+        #     return -1
+        # self.hp_coords[1] += self.ms_v * moves
 
         if self.rect.x + self.ms_h > 0 and self.rect.right + self.ms_h < window_w:
             self.rect.x += self.ms_h
             self.hp_coords[0] += self.ms_h
-            self.counter -= 1
+            self.counterx -= 1
         else:
-            self.counter = 0
+            self.counterx = 0
+
+
+class Star():
+    def __init__(self, window_w, window_h, randy=1):
+        self.window_w, self.window_h = window_w, window_h
+        self.speed = randint(1, 3)
+        self.x, self.y = randint(0, window_w - 1), randint(0, window_h - 1) * randy
+        self.size = self.speed, self.speed
+
+    def update(self):
+        self.y += self.speed
+        if self.y > self.window_h:
+            return 1
+        return 0
+
+    def draw(self, screen):
+        rect(screen, (250, 250, 250), (self.x, self.y, *self.size))

@@ -11,6 +11,7 @@ class Menu:
     def __init__(self, caption, window_w=900, window_h=600):
         self.window_w, self.window_h = window_w, window_h
         self.screen = set_mode((self.window_w, self.window_h))
+        set_caption(caption)
 
 
 class MainMenu(Menu):
@@ -41,22 +42,44 @@ class MainMenu(Menu):
 
 
 class InGameMenu():
-    def __init__(self, screen):
+    def __init__(self, screen, caption):
         self.screen = screen
         self.window_w, self.window_h = screen.get_size()
-        set_caption("Menu")
+        set_caption(caption)
         self.surf = Surface((self.window_w, self.window_h))  # the size of your rect
         self.surf.set_alpha(150)  # alpha level
         self.surf.fill((60, 60, 60))  # this fills the entire surface
 
+    def run(self):
+        self.screen.blit(self.surf, (0, 0))
+
+
+class Pause(InGameMenu):
+    def __init__(self, screen):
+        super().__init__(screen, "Pause")
         self.b_continue = TextButton(self.window_w // 2 - 225, self.window_h * 2 // 6 - 40, 450, 80, 1, "Continue", 44, 200)
         self.b_restart = TextButton(self.window_w // 2 - 225, self.window_h * 3 // 6 - 40, 450, 80, 1, "Restart", 44, 200)
         self.b_back = TextButton(self.window_w // 2 - 225, self.window_h * 4 // 6 - 40, 450, 80, 1, "Go to Menu", 44, 200)
 
     def run(self):
-        self.screen.blit(self.surf, (0, 0))
+        super().run()
         if self.b_continue.draw(self.screen):
             return 1
+        if self.b_back.draw(self.screen):
+            return 2
+        if self.b_restart.draw(self.screen):
+            return 3
+        return 0
+
+
+class DeathScreen(InGameMenu):
+    def __init__(self, screen):
+        super().__init__(screen, "The end")
+        self.b_restart = TextButton(self.window_w // 2 - 225, self.window_h * 2 // 5 - 40, 450, 80, 1, "Restart", 44, 200)
+        self.b_back = TextButton(self.window_w // 2 - 225, self.window_h * 3 // 5 - 40, 450, 80, 1, "Go to Menu", 44, 200)
+
+    def run(self):
+        super().run()
         if self.b_back.draw(self.screen):
             return 2
         if self.b_restart.draw(self.screen):
