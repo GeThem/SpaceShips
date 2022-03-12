@@ -1,8 +1,7 @@
-from pygame import Rect
+from pygame import Rect, Surface
 from pygame.mouse import get_pos, get_pressed
 from pygame.draw import rect
 from pygame.font import Font
-from pygame import Surface
 
 
 class Button:

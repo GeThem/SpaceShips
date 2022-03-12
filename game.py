@@ -3,7 +3,7 @@ from pygame.display import set_mode, quit as disp_quit, set_caption
 from pygame.transform import flip
 from pygame.mouse import set_visible
 from pygame.event import set_grab
-from pygame import FULLSCREEN
+# from pygame import FULLSCREEN
 from bullets import Bullet
 from ships import Enemy, Star
 from settings import window_h, window_w

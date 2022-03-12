@@ -1,6 +1,6 @@
 from pickle import dump, load as bin_load
 from pygame import init as pg_init, quit
-from pygame.display import update, quit as disp_quit
+from pygame.display import update as display_update, quit as disp_quit
 from pygame.event import get
 from pygame.key import name as key_name
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONDOWN
@@ -76,9 +76,8 @@ while 1:
     else:
         if paused:
             game.run(0)
-            if start_timer:
-                start_timer -= 1
-            else:
+            start_timer -= 1
+            if start_timer == 0:
                 paused = 0
         elif is_going:
             is_going = game.run(1)
@@ -108,5 +107,5 @@ while 1:
             if event.button == 1:
                 click = 1
 
-    update()
+    display_update()
     clock.tick(120)

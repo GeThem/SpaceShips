@@ -1,4 +1,5 @@
-from random import randint, choice
+from math import ceil
+from random import randint
 from itertools import cycle
 from pygame.draw import rect
 from pygame.mouse import get_pos
@@ -17,9 +18,10 @@ class Ship:
         self.ms_h, self.ms_v = movespeed
 
     def draw(self, surface):
-        surface.blit(self.image, self.rect)
-        rect(surface, (250, 0, 0), (*self.hp_coords, self.hp_const, 6))
-        rect(surface, (0, 250, 0), (*self.hp_coords, self.hp, 6))
+        surface.blit(self.image, self.rect.topleft)
+        rect(surface, (250, 0, 0), (*self.hp_coords, self.hp_const, 6), border_radius=2)
+        if self.hp:
+            rect(surface, (0, 250, 0), (*self.hp_coords, self.hp, 6), border_radius=2)
 
 
 class PlayerMouse(Ship):
@@ -79,7 +81,7 @@ class PlayerKeyboard(PlayerMouse):
 
 
 class Enemy(Ship):
-    def __init__(self, image, x, y, health=15, damage=5, proximity=150):
+    def __init__(self, image, x, y, health=15, damage=5, proximity=50):
         super().__init__(image, x, y, health, damage, (randint(1, 4), randint(1, 2)))
         self.counterx = self.countery = 0
         self.proximity = proximity
@@ -98,7 +100,10 @@ class Enemy(Ship):
             self.countery = randint(10, window_h)
             self.ms_v *= -1
 
-        if self.rect.bottom >= playery - self.proximity and self.ms_v > 0 or self.rect.y < 0 and self.ms_v < 0:
+        if self.rect.bottom >= playery - self.proximity and self.ms_v > 0:
+            self.ms_v *= -1
+
+        if self.rect.y < 0 and self.ms_v < 0:
             self.ms_v *= -1
 
         self.rect.y += self.ms_v * moves
@@ -121,9 +126,9 @@ class Enemy(Ship):
 class Star():
     def __init__(self, window_w, window_h, randy=1):
         self.window_w, self.window_h = window_w, window_h
-        self.speed = randint(1, 3)
+        self.speed = randint(1, 6) / 2
         self.x, self.y = randint(0, window_w - 1), randint(0, window_h - 1) * randy
-        self.size = self.speed, self.speed
+        self.size = ceil(self.speed), ceil(self.speed)
 
     def update(self):
         self.y += self.speed
@@ -132,4 +137,4 @@ class Star():
         return 0
 
     def draw(self, screen):
-        rect(screen, (250, 250, 250), (self.x, self.y, *self.size))
+        rect(screen, (250, 250, 250), (self.x, round(self.y), *self.size))
