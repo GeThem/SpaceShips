@@ -83,8 +83,10 @@ class PlayerKeyboard(PlayerMouse):
 
 
 class Enemy(Ship):
-    def __init__(self, image, x, y, health=15, damage=5, proximity=50):
-        super().__init__(image, x, y, health, damage, (randint(1, 4), randint(1, 2)))
+    def __init__(self, image, x, y, health=15, damage=5, movespeed=None, proximity=50):
+        if movespeed is None:
+            movespeed = speed if (speed:=randint(-4, 4)) else 1, randint(1, 2)
+        super().__init__(image, x, y, health, damage, movespeed)
         self.counterx = self.countery = 0
         self.proximity = proximity
 

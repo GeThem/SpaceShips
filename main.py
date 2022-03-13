@@ -1,6 +1,6 @@
 from pickle import dump, load as bin_load
 from pygame import init as pg_init, quit
-from pygame.display import update as display_update, quit as disp_quit
+from pygame.display import update as display_update, Info
 from pygame.event import get
 from pygame.key import name as key_name
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONDOWN
@@ -8,14 +8,13 @@ from pygame.time import Clock
 from pygame.font import Font
 from game import Game
 from menus import MainMenu, Pause, DeathScreen, SettingsMenu, InGameMenu
-from pyautogui import size
 
 
 pg_init()
 
 clock = Clock()
 
-resolution = size()
+resolution = Info().current_w, Info().current_h
 
 try:
     with open('data/settings.bin', 'rb') as file:
@@ -72,11 +71,13 @@ while 1:
             if change == -1:
                 change, mode, fullscreen = menu.run(click)
             else:
-                if change in (4, 5):
-                    if change == 5:
-                        with open('data/settings.bin', 'wb') as file:
-                            dump(controls + [mode, fullscreen], file)
+                if change == 5:
+                    with open('data/settings.bin', 'wb') as file:
+                        dump(controls + [mode, fullscreen], file)
                     change = -1
+                if change == 4:
+                    with open('data/settings.bin', 'rb') as file:
+                        *controls, mode, fullscreen = bin_load(file)
                     if fullscreen:
                         if menu.screen.get_size() != resolution:
                             menu = MainMenu(1, resolution, 1)
@@ -87,6 +88,7 @@ while 1:
                             menu = MainMenu(1)
                         else:
                             menu = MainMenu(menu.screen)
+                    change = -1
                 elif key:
                     controls[change] = key
                     menu.controls[change] = font.render(key_name(key).upper(), 1, (100, 100, 100))

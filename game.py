@@ -3,7 +3,6 @@ from pygame.display import set_mode, quit as disp_quit, set_caption
 from pygame.transform import flip
 from pygame.mouse import set_visible
 from pygame.event import set_grab
-from pygame import FULLSCREEN
 from bullets import Bullet
 from ships import Enemy, Star
 
@@ -33,7 +32,7 @@ class Game:
         self.bullet_size = 2, 16
 
         enemy_num = self.window_w // 200
-        self.enemies = [Enemy(self.enemy_ship, randint(35, self.window_w // 2 - 35), -80) for _ in range(enemy_num)]
+        self.enemies = [Enemy(self.enemy_ship, randint(35, self.window_w - 35), -80) for _ in range(enemy_num)]
         self.enemy_bullets = []
 
         self.stars = [Star(self.window_w, self.window_h) for _ in range(self.window_w // 15)]
@@ -64,9 +63,9 @@ class Game:
 
             if fire := self.player.fire():
                 self.p_bullets.extend([
-                    Bullet(*fire, self.bullet_size, self.bullet_speed),
-                    Bullet(fire[0] - 6, fire[1], self.bullet_size, self.bullet_speed),
-                    Bullet(fire[0] + 6, fire[1], self.bullet_size, self.bullet_speed)
+                    Bullet(*fire, self.bullet_size, self.bullet_speed, self.player.damage),
+                    Bullet(fire[0] - 15, fire[1] + 4, self.bullet_size, self.bullet_speed, self.player.damage - 7),
+                    Bullet(fire[0] + 15, fire[1] + 4, self.bullet_size, self.bullet_speed, self.player.damage - 7)
                 ])
         else:
             set_visible(True)
@@ -77,7 +76,7 @@ class Game:
                 bullet.update()
                 if (index := bullet.rect.collidelist(self.enemies)) != -1:
                     del self.p_bullets[i]
-                    self.enemies[index].hp -= self.player.damage
+                    self.enemies[index].hp -= bullet.damage
                     if self.enemies[index].hp <= 0:
                         del self.enemies[index]
                         self.enemies.append(
@@ -98,7 +97,6 @@ class Game:
                         self.enemies.append(
                             Enemy(self.enemy_ship, randint(35, self.window_w - 35), -80, randint(1, 100), randint(1, 20)))
                     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                    # enemy.draw(self.screen)
                     if fire := enemy.fire():
                         self.enemy_bullets.append(Bullet(*fire, self.bullet_size, -self.bullet_speed, enemy.damage))
                 else:
@@ -113,7 +111,7 @@ class Game:
                 if bullet.rect.colliderect(self.player):
                     del self.enemy_bullets[i]
                     self.player.hp -= bullet.damage
-            elif not bullet.rect.colliderect((0, 0, self.window_w, self.window_h)):
+            elif not bullet.rect.y > self.window_h:
                 del self.enemy_bullets[i]
             bullet.draw(self.screen)
         # ---------------------------------------------------------------

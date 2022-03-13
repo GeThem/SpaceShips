@@ -4,7 +4,7 @@ from pygame.draw import rect
 
 class Bullet:
     def __init__(self, x, y, size, speed, damage=0):
-        self.rect = Rect(x - 1, y, *size)
+        self.rect = Rect(x - size[0] // 2, y, *size)
         self.speed = speed
         self.damage = damage
 
