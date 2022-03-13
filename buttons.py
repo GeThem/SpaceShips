@@ -16,6 +16,7 @@ class TextButton(Button):
         super().__init__(x, y, width, height, on_button_activation)
 
         font = Font('data/fonts/JetBrainsMono-ExtraBold.ttf', size)
+        self.on_button = 0
 
         text_img = font.render(text, 1, (130, 130, 130))
         self.but_inact = Surface(self.rect.size)
@@ -36,20 +37,34 @@ class TextButton(Button):
         self.but_pressed.fill((0, 250, 0))
         self.but_pressed.blit(text_img, text_img_rect)
 
-    def draw(self, screen):
+        self.button = self.but_inact
+
+    def update(self):
+        is_pressed = get_pressed(3)[0]
         if self.rect.collidepoint(*get_pos()):
-            if get_pressed(3)[0]:
-                self.was_pressed = 1
-                screen.blit(self.but_pressed, self.rect)
+            if is_pressed:
+                if self.on_button or self.was_pressed:
+                    self.was_pressed = 1
+                    self.button = self.but_pressed
+                elif self.obi:
+                    self.button = self.but_active
             elif self.was_pressed:
                 self.was_pressed = 0
-                screen.blit(self.but_pressed, self.rect)
+                self.button = self.but_pressed
                 return 1
-            elif self.obi:
-                screen.blit(self.but_active, self.rect)
+            else:
+                if self.obi:
+                    self.button = self.but_active
+                self.on_button = 1
         else:
-            screen.blit(self.but_inact, self.rect)
-            self.was_pressed = 0
+            if is_pressed and self.was_pressed:
+                self.button = self.but_pressed
+            else:
+                self.button = self.but_inact
+                self.was_pressed = self.on_button = 0
+
+    def draw(self, screen):
+        screen.blit(self.button, self.rect)
 
 
 class Switch(Button):

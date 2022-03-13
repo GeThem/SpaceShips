@@ -5,7 +5,6 @@ from pygame.draw import rect
 from pygame.mouse import get_pos
 from pygame.key import get_pressed
 from pygame.image import load
-from settings import window_w, window_h
 
 
 class Ship:
@@ -26,13 +25,16 @@ class Ship:
 
 class PlayerMouse(Ship):
     def __init__(self, health, damage, movespeed):
-        super().__init__(load("data/images/ship.png"), window_w // 2, window_h - 15, health, damage, movespeed)
+        super().__init__(load("data/images/ship.png"), 0, 0, health, damage, movespeed)
         self.firerate = cycle(range(40, -1, -1))
 
-    def restart(self):
-        self.rect.midbottom = window_w // 2, window_h - 15
+    def set_pos(self, x, y):
+        self.rect.midbottom = x, y
+        self.hp_coords = [self.rect.centerx - self.hp_const // 2, y + 5]
+
+    def restart(self, x, y):
         self.hp = self.hp_const
-        self.hp_coords = [self.rect.centerx - self.hp // 2, self.rect.bottom + 5]
+        self.set_pos(x, y)
 
     def change_firerate(self, firerate):
         self.firerate = cycle(range(firerate, -1, -1))

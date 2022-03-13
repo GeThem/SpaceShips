@@ -1,1 +1,0 @@
-window_w, window_h = 600, 900
