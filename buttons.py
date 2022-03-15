@@ -43,7 +43,7 @@ class TextButton(Button):
         is_pressed = get_pressed(3)[0]
         if self.rect.collidepoint(*get_pos()):
             if is_pressed:
-                if self.on_button or self.was_pressed:
+                if self.on_button:
                     self.was_pressed = 1
                     self.button = self.but_pressed
                 elif self.obi:
@@ -83,8 +83,8 @@ class Switch(Button):
 
     def draw(self, screen):
         if self.activated:
-            rect(screen, (170, 170, 170), self.rect)
+            rect(screen, (170, 170, 170), self.rect, border_radius=self.rect.width//2)
         elif self.obi and self.collides:
-            rect(screen, (130, 130, 130), self.rect)
+            rect(screen, (130, 130, 130), self.rect, border_radius=self.rect.width//2)
         else:
-            rect(screen, (100, 100, 100), self.rect)
+            rect(screen, (100, 100, 100), self.rect, border_radius=self.rect.width//2)

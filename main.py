@@ -58,8 +58,8 @@ while 1:
                     is_going = 1
                 game.set_caption()
                 contin = menu = 0
-                paused = 1
-                start_timer = 60
+                # paused = 1
+                # start_timer = 60
             elif contin == 2:
                 contin = 0
                 if fullscreen:

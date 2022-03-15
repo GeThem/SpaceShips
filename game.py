@@ -28,8 +28,8 @@ class Game:
 
         self.enemy_ship = flip(self.player.image, 0, 1)
 
-        self.bullet_speed = 8
         self.bullet_size = 2, 16
+        self.bullet_speed = self.bullet_size[1] // 2
 
         enemy_num = self.window_w // 200
         self.enemies = [Enemy(self.enemy_ship, randint(35, self.window_w - 35), -80) for _ in range(enemy_num)]
@@ -111,8 +111,8 @@ class Game:
                 if bullet.rect.colliderect(self.player):
                     del self.enemy_bullets[i]
                     self.player.hp -= bullet.damage
-            elif not bullet.rect.y > self.window_h:
-                del self.enemy_bullets[i]
+                elif bullet.rect.y > self.window_h:
+                    del self.enemy_bullets[i]
             bullet.draw(self.screen)
         # ---------------------------------------------------------------
 

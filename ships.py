@@ -8,13 +8,26 @@ from pygame.image import load
 
 
 class Ship:
-    def __init__(self, image, x, y, health, damage, movespeed):
+    def __init__(self, image, x, y, health, damage, movespeed, firerate):
         self.image = image
         self.rect = image.get_rect(midbottom=(x, y))
         self.hp = self.hp_const = health
         self.hp_coords = [self.rect.centerx - health // 2, y + 5]
         self.damage = damage
         self.ms_h, self.ms_v = movespeed
+        if firerate is not None:
+            self.firerate = cycle(range(firerate, -1, -1))
+
+    def set_pos(self, x, y):
+        self.rect.midbottom = x, y
+        self.hp_coords = [self.rect.centerx - self.hp_const // 2, y + 5]
+
+    def fire(self):
+        if not self.firerate.__next__():
+            return self.rect.midtop
+
+    def change_firerate(self, firerate):
+        self.firerate = cycle(range(firerate, -1, -1))
 
     def draw(self, surface):
         surface.blit(self.image, self.rect.topleft)
@@ -25,23 +38,11 @@ class Ship:
 
 class PlayerMouse(Ship):
     def __init__(self, health, damage, movespeed):
-        super().__init__(load("data/images/ship.png"), 0, 0, health, damage, movespeed)
-        self.firerate = cycle(range(40, -1, -1))
-
-    def set_pos(self, x, y):
-        self.rect.midbottom = x, y
-        self.hp_coords = [self.rect.centerx - self.hp_const // 2, y + 5]
+        super().__init__(load("data/images/ship.png"), 0, 0, health, damage, movespeed, 40)
 
     def restart(self, x, y):
         self.hp = self.hp_const
         self.set_pos(x, y)
-
-    def change_firerate(self, firerate):
-        self.firerate = cycle(range(firerate, -1, -1))
-
-    def fire(self):
-        if not self.firerate.__next__():
-            return self.rect.midtop
 
     def update(self, window_w, window_h):
         mx, my = get_pos()
@@ -86,7 +87,7 @@ class Enemy(Ship):
     def __init__(self, image, x, y, health=15, damage=5, movespeed=None, proximity=50):
         if movespeed is None:
             movespeed = speed if (speed:=randint(-4, 4)) else 1, randint(1, 2)
-        super().__init__(image, x, y, health, damage, movespeed)
+        super().__init__(image, x, y, health, damage, movespeed, None)
         self.counterx = self.countery = 0
         self.proximity = proximity
 
