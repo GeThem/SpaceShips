@@ -121,7 +121,7 @@ while 1:
                     if fullscreen:
                         menu = MainMenu(game.screen)
                     else:
-                        menu = 1
+                        menu = MainMenu(1)
                 elif menu == 0:
                     menu = Pause(game.screen)
             elif change != -1:
