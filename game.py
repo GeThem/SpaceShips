@@ -40,7 +40,6 @@ class Game:
         if restart:
             self.player.restart(self.window_w // 2, self.window_h - 15)
 
-
     @staticmethod
     def set_caption():
         set_caption("Space Ships")
@@ -85,7 +84,7 @@ class Game:
         # ---------------------------------------------------------------
 
         # enemy ---------------------------------------------------------
-        for i, enemy in enumerate(self.enemies, -len(self.enemies)):
+        for i, enemy in enumerate(self.enemies):
             if not_paused:
                 if enemy.update(self.window_w, self.window_h, self.player.rect.y) != -1:
                     # if collides with player ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -98,7 +97,7 @@ class Game:
                         self.enemy_bullets.append(Bullet(*fire, self.bullet_size, -self.bullet_speed, enemy.damage))
                 else:
                     self.enemies[i] = Enemy(self.enemy_ship, randint(35, self.window_w - 35), -80,
-                                                damage=randint(1, 20))
+                                            damage=randint(1, 20))
             if enemy.hp_coords[1] + 6 > 0:
                 enemy.draw(self.screen)
 
