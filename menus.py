@@ -207,11 +207,9 @@ class Records:
 
 
         font = Font('data/fonts/JetBrainsMono-ExtraBold.ttf', 35)
-        self.mn_text = font.render('Score' + ' ' * 11 + 'Max combo', 1, (200, 200, 200))
-        if self.records == 0:
-            self.records = [font.render('', 1, (60, 60, 60))]
-        else:
-            self.records = [font.render(text[0] + ' ' * (25 - sum(map(len, text))) + text[1], 1, (200, 200, 200)) for text in self.records]
+        colors = ((255, 224, 23), (224, 224, 224), (148, 86, 0), (150, 150, 150), (150, 150, 150))
+        self.mn_text = font.render('Date     Score' + ' ' * 11 + 'Max combo', 1, (200, 200, 200))
+        self.records = [font.render(text[0] + '  ' + text[1] + '.' * (25 - sum(map(len, text[1:]))) + text[2], 1, color) for i, (text, color) in enumerate(zip(self.records, colors), 1)]
 
     def run(self):
         if self.b_back.update() == 1:
@@ -220,7 +218,7 @@ class Records:
         self.screen.fill((60, 60, 60))
 
         for i, record in enumerate(self.records):
-            self.screen.blit(record, record.get_rect(center=(self.window_w // 2, self.window_h // 2 - 130 + 45 * i)))
+            self.screen.blit(record, record.get_rect(center=(self.window_w // 2 - 30, self.window_h // 2 - 130 + 45 * i)))
 
         self.screen.blit(self.mn_text, self.mn_text.get_rect(center=(self.window_w//2, self.window_h // 2 - 200)))
         self.b_back.draw(self.screen)

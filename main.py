@@ -1,4 +1,5 @@
 from pickle import dump, load as bin_load
+from datetime import date
 from pygame import init as pg_init, quit
 from pygame.display import update as display_update, Info
 from pygame.event import get
@@ -121,10 +122,10 @@ while 1:
                 scores = bin_load(file)
 
             if scores == [] or len(scores) < 5:
-                scores.append([score, combo])
-            elif int(scores[-1][0]) < int(score) or int(scores[-1][0]) == int(score) and int(scores[-1][1]) < int(combo):
-                scores[-1] = [score, combo]
-            scores = sorted(scores, key=lambda x: int(x[0]), reverse=1)
+                scores.append([date.today().strftime("%d/%m/%Y"), score, combo])
+            elif int(scores[-1][1]) < int(score) or int(scores[-1][1]) == int(score) and int(scores[-1][2]) < int(combo):
+                scores[-1] = [date.today().strftime("%d/%m/%Y"), score, combo]
+            scores = sorted(scores, key=lambda x: int(x[1]), reverse=1)
 
             with open('data/records.bin', 'wb') as file:
                 dump(scores, file)
