@@ -3,6 +3,7 @@ from pygame.display import set_mode, quit as disp_quit, set_caption
 from pygame.transform import flip
 from pygame.mouse import set_visible
 from pygame.event import set_grab
+from pygame.font import Font
 from bullets import Bullet
 from ships import Enemy, Star
 
@@ -40,9 +41,30 @@ class Game:
         if restart:
             self.player.restart(self.window_w // 2, self.window_h - 15)
 
+        self.score = 0
+        self.combo = 1
+        self.max_combo = 1
+        self.font = Font('data/fonts/JetBrainsMono-ExtraBold.ttf', 50)
+        self.render_score()
+        self.render_combo()
+
     @staticmethod
     def set_caption():
         set_caption("Space Ships")
+
+    def render_combo(self):
+        self.combo_img = self.font.render(f'x{self.combo}', 1, (200, 200, 200))
+        self.combo_img.set_alpha(150)
+
+    def render_score(self, alpha=150):
+        self.score_img = self.font.render(str(self.score), 1, (200, 200, 200))
+        self.score_img.set_alpha(alpha)
+
+    def render_final_score(self):
+        self.score_img = Font('data/fonts/JetBrainsMono-ExtraBold.ttf', 80).render(f'Final score: {self.score}', 1, (200, 200, 200))
+
+    def render_max_combo(self):
+        self.combo_img = Font('data/fonts/JetBrainsMono-ExtraBold.ttf', 80).render(f'Max combo: x{self.max_combo}', 1, (200, 200, 200))
 
     def run(self, not_paused):
         self.screen.fill((0, 0, 0))
@@ -76,6 +98,10 @@ class Game:
                     del self.p_bullets[i]
                     self.enemies[index].hp -= bullet.damage
                     if self.enemies[index].hp <= 0:
+                        self.score += self.enemies[index].score * self.combo
+                        self.render_score()
+                        self.combo += 1
+                        self.render_combo()
                         self.enemies[index] = Enemy(self.enemy_ship, randint(35, self.window_w - 35), 0,
                                                     randint(1, 100), randint(1, 20))
                 elif not bullet.rect.colliderect((0, 0, self.window_w, self.window_h)):
@@ -90,6 +116,12 @@ class Game:
                     # if collides with player ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                     if enemy.rect.colliderect(self.player.rect):
                         self.player.hp -= self.enemies[i].hp
+                        self.score += self.enemies[i].score * self.combo
+                        self.render_score()
+                        if self.combo > self.max_combo:
+                            self.max_combo = self.combo
+                        self.combo = 1
+                        self.render_combo()
                         self.enemies[i] = Enemy(self.enemy_ship, randint(35, self.window_w - 35), -80,
                                                 randint(1, 100), randint(1, 20))
                     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -107,6 +139,10 @@ class Game:
                 if bullet.rect.colliderect(self.player):
                     del self.enemy_bullets[i]
                     self.player.hp -= bullet.damage
+                    if self.combo > self.max_combo:
+                        self.max_combo = self.combo
+                    self.combo = 1
+                    self.render_combo()
                 elif bullet.rect.y > self.window_h:
                     del self.enemy_bullets[i]
             bullet.draw(self.screen)
@@ -116,7 +152,10 @@ class Game:
         if not_paused and self.player.hp <= 0:
             self.player.hp = 0
             self.player.draw(self.screen)
-            return 0
+            return 0, str(self.score), str(self.max_combo)
         self.player.draw(self.screen)
-        return 1
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        self.screen.blit(self.combo_img, self.combo_img.get_rect(bottomright=(self.window_w - 10, self.window_h - 50)))
+        self.screen.blit(self.score_img, self.score_img.get_rect(bottomright=(self.window_w - 10, self.window_h)))
+        return 1, 1, 1

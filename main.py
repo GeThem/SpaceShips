@@ -7,7 +7,7 @@ from pygame.locals import QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONDOWN
 from pygame.time import Clock
 from pygame.font import Font
 from game import Game
-from menus import MainMenu, Pause, DeathScreen, SettingsMenu, InGameMenu
+from menus import MainMenu, Pause, DeathScreen, SettingsMenu, InGameMenu, Records
 
 
 pg_init()
@@ -24,6 +24,13 @@ except FileNotFoundError:
         *controls, mode, fullscreen = 97, 100, 119, 115, 1, 1
         dump(controls + [mode, fullscreen], file)
 
+try:
+    with open('data/records.bin', 'rb') as file:
+        pass
+except FileNotFoundError:
+    with open('data/records.bin', 'wb') as file:
+        dump([], file)
+
 if fullscreen:
     menu = MainMenu(1, resolution, fullscreen)
 else:
@@ -39,6 +46,8 @@ while 1:
         if isinstance(menu, MainMenu):
             if (player := menu.run()) == 1:
                 menu = SettingsMenu(menu.screen, [font.render(key_name(text).upper(), 1, (100, 100, 100)) for text in controls] + [mode, fullscreen])
+            elif player == 2:
+                menu = Records(menu.screen)
             elif player:
                 paused = is_going = 1
                 start_timer = timer = 240
@@ -66,6 +75,10 @@ while 1:
                     menu = MainMenu(game.screen)
                 else:
                     menu = MainMenu(1)
+
+        elif isinstance(menu, Records):
+            if menu.run() == 1:
+                menu = MainMenu(menu.screen)
 
         else:
             if change == -1:
@@ -101,9 +114,20 @@ while 1:
             if start_timer == 0:
                 paused = 0
         elif is_going:
-            is_going = game.run(1)
+            is_going, score, combo = game.run(1)
         else:
-            menu = DeathScreen(game.screen)
+            menu = DeathScreen(game.screen, score, combo)
+            with open('data/records.bin', 'rb') as file:
+                scores = bin_load(file)
+
+            if scores == [] or len(scores) < 5:
+                scores.append([score, combo])
+            elif int(scores[-1][0]) < int(score) or int(scores[-1][0]) == int(score) and int(scores[-1][1]) < int(combo):
+                scores[-1] = [score, combo]
+            scores = sorted(scores, key=lambda x: int(x[0]), reverse=1)
+
+            with open('data/records.bin', 'wb') as file:
+                dump(scores, file)
 
     click = 0
     for event in get():
