@@ -28,13 +28,13 @@ class TextButton(Button):
         text_img = font.render(text, 1, (130, 130, 130))
         self.but_active = Surface(self.rect.size)
         text_img_rect = text_img.get_rect(center=self.but_active.get_rect().center)
-        self.but_active.fill((250, 0, 0))
+        self.but_active.fill((196, 22, 22))
         self.but_active.blit(text_img, text_img_rect)
 
         text_img = font.render(text, 1, (130, 130, 130))
         self.but_pressed = Surface(self.rect.size)
         text_img_rect = text_img.get_rect(center=self.but_pressed.get_rect().center)
-        self.but_pressed.fill((0, 250, 0))
+        self.but_pressed.fill((22, 196, 22))
         self.but_pressed.blit(text_img, text_img_rect)
 
         self.button = self.but_inact

@@ -31,9 +31,9 @@ class Ship:
 
     def draw(self, surface):
         surface.blit(self.image, self.rect.topleft)
-        rect(surface, (250, 0, 0), (*self.hp_coords, self.hp_const, 6), border_radius=2)
+        rect(surface, (196, 22, 22), (*self.hp_coords, self.hp_const, 6), border_radius=2)
         if self.hp:
-            rect(surface, (0, 250, 0), (*self.hp_coords, self.hp, 6), border_radius=2)
+            rect(surface, (22, 196, 22), (*self.hp_coords, self.hp, 6), border_radius=2)
 
 
 class PlayerMouse(Ship):
