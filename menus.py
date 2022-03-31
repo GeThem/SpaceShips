@@ -28,7 +28,7 @@ class MainMenu(Menu):
         self.b_start = TextButton(self.window_w // 2 - 350, self.window_h // 2 - 230, 700, 100, 1, "Start", 54)
         self.b_recs = TextButton(self.window_w // 2 - 350, self.window_h // 2  - 110, 700, 100, 1, "Records", 54)
         self.b_setts = TextButton(self.window_w // 2 - 350, self.window_h // 2 + 10, 700, 100, 1, "Settings", 54)
-        self.b_exit = TextButton(self.window_w // 2 - 350, self.window_h // 2 + 130, 700, 100, 1, "Exit", 54)
+        self.b_quit = TextButton(self.window_w // 2 - 350, self.window_h // 2 + 130, 700, 100, 1, "Quit", 54)
 
     def run(self):
         self.screen.fill((60, 60, 60))
@@ -43,14 +43,14 @@ class MainMenu(Menu):
             return 2
         if self.b_setts.update():
             return 1
-        if self.b_exit.update():
+        if self.b_quit.update():
             quit()
             exit()
 
         self.b_start.draw(self.screen)
         self.b_recs.draw(self.screen)
         self.b_setts.draw(self.screen)
-        self.b_exit.draw(self.screen)
+        self.b_quit.draw(self.screen)
 
         return 0
 
@@ -97,8 +97,13 @@ class DeathScreen(InGameMenu):
         self.b_back = TextButton(self.window_w // 2 - 225, self.window_h // 2 + 40, 450, 80, 1, "Go to Menu", 44, 200)
         font = Font('data/fonts/JetBrainsMono-ExtraBold.ttf', 50)
         self.score_img1 = font.render(f'Final score:', 1, (200, 200, 200))
+        self.score_img1 = self.score_img1, self.score_img1.get_rect(center=(self.window_w // 2, self.window_h // 6 - 30))
+        
         self.score_img2 = font.render(str(score), 1, (200, 200, 200))
+        self.score_img2 = self.score_img2, self.score_img2.get_rect(center=(self.window_w // 2, self.window_h // 6 + 30))
+
         self.combo_img = font.render(f'Max combo: x{combo}', 1, (200, 200, 200))
+        self.combo_img = self.combo_img, self.combo_img.get_rect(center=(self.window_w // 2, self.window_h // 5 + 90))
 
     def run(self):
         super().run()
@@ -107,9 +112,9 @@ class DeathScreen(InGameMenu):
         if self.b_restart.update():
             return 3
 
-        self.screen.blit(self.combo_img, self.combo_img.get_rect(center=(self.window_w // 2, self.window_h // 5 + 90)))
-        self.screen.blit(self.score_img1, self.score_img1.get_rect(center=(self.window_w // 2, self.window_h // 6 - 30)))
-        self.screen.blit(self.score_img2, self.score_img2.get_rect(center=(self.window_w // 2, self.window_h // 6 + 30)))
+        self.screen.blit(*self.combo_img)
+        self.screen.blit(*self.score_img1)
+        self.screen.blit(*self.score_img2)
         self.b_back.draw(self.screen)
         self.b_restart.draw(self.screen)
         return 0
@@ -131,18 +136,24 @@ class SettingsMenu:
 
         font = Font('data/fonts/JetBrainsMono-ExtraBold.ttf', 24)
         self.fullscreen_text = font.render("Fullscreen", 1, (150, 150, 150))
-        self.fullscreen_text = self.fullscreen_text, Rect(self.fullscreen_switch.rect.move(50, 0))
+        self.fullscreen_text = self.fullscreen_text, self.fullscreen_switch.rect.move(50, 0)
+
         self.mouse_text = font.render("Mouse control", 1, (150, 150, 150))
-        self.mouse_text = self.mouse_text, Rect(self.mouse_controls.rect.move(50, 0))
+        self.mouse_text = self.mouse_text, self.mouse_controls.rect.move(50, 0)
+
         self.keyboard_text = font.render("Keyboard control", 1, (150, 150, 150))
-        self.keyboard_text = self.keyboard_text, Rect(self.keyboard_controls.rect.move(50, 0))
+        self.keyboard_text = self.keyboard_text, self.keyboard_controls.rect.move(50, 0)
+
+        self.warning_text = Font('data/fonts/JetBrainsMono-ExtraBold.ttf', 16).render("Changes will apply after leaving this menu", 1, (150, 150, 150))
+        self.warning_text = self.warning_text, self.warning_text.get_rect(center=(self.window_w // 2, self.window_h // 2 + 270))
+        self.draw_warning = False
 
         self.buttons = (
-            [TextButton(self.window_w // 2 - 235, self.window_h // 2 - 110, 220, 54, 1, "Move left", 34)],
+        	[TextButton(self.window_w // 2 - 235, self.window_h // 2 - 110, 220, 54, 1, "Move left", 34)],
             [TextButton(self.window_w // 2 - 235, self.window_h // 2 - 46, 220, 54, 1, "Move right", 34)],
             [TextButton(self.window_w // 2 - 235, self.window_h // 2 + 18, 220, 54, 1, "Move up", 34)],
             [TextButton(self.window_w // 2 - 235, self.window_h // 2 + 82, 220, 54, 1, "Move down", 34)]
-                        )
+            )
         self.button_back = TextButton(self.window_w // 2 - 315, self.window_h  // 2 + 175, 300, 74, 1, "Back", 54)
         self.button_save = TextButton(self.window_w // 2 + 15, self.window_h  // 2 + 175, 300, 74, 1, "Save", 54)
         *self.controls, self.mouse_controls.activated, self.fullscreen_switch.activated = settings
@@ -184,12 +195,16 @@ class SettingsMenu:
 
         if self.button_save.update():
             result = 5
+            self.draw_warning = True
         if self.button_back.update():
             result = 4
 
         self.screen.blit(*self.fullscreen_text)
         self.screen.blit(*self.mouse_text)
         self.screen.blit(*self.keyboard_text)
+        if self.draw_warning:
+        	self.screen.blit(*self.warning_text)
+
 
         return result, self.mouse_controls.activated, self.fullscreen_switch.activated
 
@@ -209,7 +224,7 @@ class Records:
         font = Font('data/fonts/JetBrainsMono-ExtraBold.ttf', 35)
         colors = ((255, 224, 23), (224, 224, 224), (148, 86, 0), (150, 150, 150), (150, 150, 150))
         self.mn_text = font.render('Date     Score' + ' ' * 11 + 'Max combo', 1, (200, 200, 200))
-        self.records = [font.render(text[0] + '  ' + text[1] + '.' * (25 - sum(map(len, text[1:]))) + text[2], 1, color) for i, (text, color) in enumerate(zip(self.records, colors), 1)]
+        self.records = [font.render(text[0] + '  ' + text[1] + ' ' * (24 - sum(map(len, text[1:]))) + f'x{text[2]}', 1, color) for i, (text, color) in enumerate(zip(self.records, colors), 1)]
 
     def run(self):
         if self.b_back.update() == 1:
@@ -218,8 +233,8 @@ class Records:
         self.screen.fill((60, 60, 60))
 
         for i, record in enumerate(self.records):
-            self.screen.blit(record, record.get_rect(center=(self.window_w // 2 - 30, self.window_h // 2 - 130 + 45 * i)))
+            self.screen.blit(record, record.get_rect(center=(self.window_w // 2, self.window_h // 2 - 130 + 53 * i)))
 
-        self.screen.blit(self.mn_text, self.mn_text.get_rect(center=(self.window_w//2, self.window_h // 2 - 200)))
+        self.screen.blit(self.mn_text, self.mn_text.get_rect(center=(self.window_w // 2 + 30, self.window_h // 2 - 200)))
         self.b_back.draw(self.screen)
         return 0

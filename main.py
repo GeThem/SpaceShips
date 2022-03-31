@@ -138,19 +138,27 @@ while 1:
         elif event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 if isinstance(menu, SettingsMenu) and change == -1:
+                    change = 4
+
+                elif isinstance(menu, Records):
                     menu = MainMenu(menu.screen)
+
                 elif isinstance(menu, Pause):
                     contin = 1
+                
                 elif isinstance(menu, DeathScreen):
                     contin = 0
                     if fullscreen:
                         menu = MainMenu(game.screen)
                     else:
                         menu = MainMenu(1)
+
                 elif menu == 0:
                     menu = Pause(game.screen)
+            
             elif change != -1:
                 key = event.key
+        
         elif event.type == MOUSEBUTTONDOWN:
             if event.button == 1:
                 click = 1
